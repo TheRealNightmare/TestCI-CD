@@ -3,7 +3,9 @@ name: Deploy Nuxt App to EC2
 on:
   push:
     branches:
-      - main # Triggers on push to main branch
+      - main
+    paths:
+      - 'demo/**' # Triggers on push to main branch
 
 jobs:
   deploy:
@@ -19,17 +21,21 @@ jobs:
         node-version: 24 # Must match your EC2's Node version
 
     - name: 3. Install Dependencies
+      working-directory: ./demo
       run: npm install
 
     - name: 4. Build Nuxt Project
+      working-directory: ./demo
       run: npm run build
 
     - name: 5. Make Scripts Executable
+      working-directory: ./demo
       run: chmod +x scripts/*.sh
 
     - name: 6. Create Deployment Artifact (Zip)
+      working-directory: ./demo
       # Zip everything needed to RUN the app
-      run: zip -r deployment.zip .output node_modules package.json appspec.yml scripts
+      run: zip -r ../deployment.zip .output node_modules package.json appspec.yml scripts
 
     - name: 7. Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
