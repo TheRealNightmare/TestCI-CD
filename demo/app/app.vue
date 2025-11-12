@@ -5,7 +5,7 @@
         Nightmare
       </h1>
       <p class="text-gray-300 text-lg leading-relaxed">
-        Blaa bla bla
+        Blaa bla bla Blaaaaaaaaaaaaaaaaa
       </p>
     </div>
   </div>
