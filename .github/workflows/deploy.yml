@@ -5,61 +5,53 @@ on:
     branches:
       - main
     paths:
-      - 'demo/**'
+      - "demo/**" # Triggers on push to main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: 1. Checkout Repository
-      uses: actions/checkout@v4
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: 2. Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        # Using a stable LTS version. Ensure your EC2 also runs Node 20.
-        node-version: 24 
+      - name: 2. Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24 # Must match your EC2's Node version
 
-    - name: 3. Install Dependencies
-      working-directory: ./demo
-      run: npm install
+      - name: 3. Install Dependencies
+        working-directory: ./demo
+        run: npm install
 
-    - name: 4. Build Nuxt Project
-      working-directory: ./demo
-      run: npm run build
+      - name: 4. Build Nuxt Project
+        working-directory: ./demo
+        run: npm run build
 
-    - name: 5. Make Scripts Executable
-      # This step is moved to the root to match the zip command
-      run: chmod +x demo/scripts/*.sh
+      - name: 5. Make Scripts Executable
+        working-directory: ./demo
+        run: chmod +x scripts/*.sh
 
-    - name: 6. Create Deployment Artifact (Zip)
-      # This runs from the root to correctly capture all files
-      run: |
-        zip -r deployment.zip \
-          appspec.yml \
-          demo/.output \
-          demo/node_modules \
-          demo/package.json \
-          demo/scripts
-          
-    - name: 7. Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-key-id: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        # Default region is Singapore (for CodeDeploy & SSM)
-        aws-region: ap-southeast-1 
+      - name: 6. Create Deployment Artifact (Zip)
+        working-directory: ./demo
+        # Zip everything needed to RUN the app
+        run: zip -r ../deployment.zip .output node_modules package.json appspec.yml scripts
 
-    - name: 8. Upload Artifact to S3 (Mumbai)
-      run: |
-        # We explicitly set the region for the S3 command
-        aws s3 cp deployment.zip s3://my-nuxt-app-test/deployment-${{ github.sha }}.zip --region ap-south-1
-        
-    - name: 9. Create AWS CodeDeploy Deployment (Singapore)
-      run: |
-        # This command correctly uses the default region (ap-southeast-1)
-        aws deploy create-deployment \
-          --application-name my-nuxt-app \
-          --deployment-group-name production \
-          --s3-location bucket=my-nuxt-app-test,bundleType=zip,key=deployment-${{ github.sha }}.zip
+      - name: 7. Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-1 # Change to your region
+
+      - name: 8. Upload Artifact to S3
+        run: |
+          aws s3 cp deployment.zip s3://my-nuxt-app-test/deployment-${{ github.sha }}.zip --region ap-southeast-1          # (Replace with your bucket name)
+
+      - name: 9. Create AWS CodeDeploy Deployment
+        run: |
+          aws deploy create-deployment \
+            --application-name my-nuxt-app \
+            --deployment-group-name production \
+            --s3-location bucket=my-nuxt-app-test,bundleType=zip,key=deployment-${{ github.sha }}.zip
+            # (Replace with your app, group, and bucket names)
