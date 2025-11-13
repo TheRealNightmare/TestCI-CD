@@ -46,12 +46,13 @@ jobs:
 
       - name: 8. Upload Artifact to S3
         run: |
-          aws s3 cp deployment.zip s3://my-nuxt-app-test/deployment-${{ github.sha }}.zip --region ap-southeast-1          # (Replace with your bucket name)
+          aws s3 cp deployment.zip s3://my-nuxt-app-artifacts-12345/deployment-${{ github.sha }}.zip
+          # (Replace with your bucket name)
 
       - name: 9. Create AWS CodeDeploy Deployment
         run: |
           aws deploy create-deployment \
             --application-name my-nuxt-app \
             --deployment-group-name production \
-            --s3-location bucket=my-nuxt-app-test,bundleType=zip,key=deployment-${{ github.sha }}.zip
+            --s3-location bucket=my-nuxt-app-artifacts-12345,bundleType=zip,key=deployment-${{ github.sha }}.zip
             # (Replace with your app, group, and bucket names)
