@@ -8,7 +8,7 @@
       <h1
         class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-600 mb-4"
       >
-        Nightmare
+        Nightmareeee
       </h1>
       <p class="text-gray-300 text-lg leading-relaxed">Blaa bla</p>
     </div>
