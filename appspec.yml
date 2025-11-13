@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: demo
+  - source: /
     destination: /var/www/my-nuxt-app
 file_exists_behavior: OVERWRITE
 
@@ -16,16 +16,16 @@ permissions:
 
 hooks:
   ApplicationStop:
-    - location: demo/scripts/app_stop.sh
+    - location: scripts/app_stop.sh
       timeout: 30
       runas: ubuntu
 
   AfterInstall:
-    - location: demo/scripts/after_install.sh
+    - location: scripts/after_install.sh
       timeout: 300
       runas: ubuntu
 
   ApplicationStart:
-    - location: demo/scripts/app_start.sh
+    - location: scripts/app_start.sh
       timeout: 60
       runas: ubuntu
