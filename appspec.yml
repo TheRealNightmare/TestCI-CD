@@ -1,19 +1,31 @@
 version: 0.0
 os: linux
 files:
-  - source: /
-    destination: /var/www/my-nuxt-app # This is where the app will live on the server
+  - source: demo
+    destination: /var/www/my-nuxt-app
 file_exists_behavior: OVERWRITE
+
+permissions:
+  - object: /var/www/my-nuxt-app
+    owner: ubuntu
+    group: ubuntu
+    mode: 755
+    type:
+      - directory
+      - file
+
 hooks:
   ApplicationStop:
-    - location: scripts/app_stop.sh
+    - location: demo/scripts/app_stop.sh
       timeout: 30
-      runas: root
+      runas: ubuntu
+
   AfterInstall:
-    - location: scripts/after_install.sh
+    - location: demo/scripts/after_install.sh
       timeout: 300
-      runas: root
+      runas: ubuntu
+
   ApplicationStart:
-    - location: scripts/app_start.sh
+    - location: demo/scripts/app_start.sh
       timeout: 60
-      runas: root
+      runas: ubuntu
